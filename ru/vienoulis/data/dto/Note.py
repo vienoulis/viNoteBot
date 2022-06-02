@@ -1,4 +1,3 @@
-from ru.vienoulis.data.orm import db
 from ru.vienoulis.data.dto.Title import *
 
 
