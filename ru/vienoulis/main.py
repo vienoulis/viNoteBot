@@ -1,5 +1,7 @@
 from telebot import *
 from data.orm import add_title_orm, get_all_title, remove_title_by_id
+from ru.vienoulis.service.keybords import get_started_kbrd, get_list_kbrd_from
+from utils.const.buttoms import *
 
 bot = telebot.TeleBot('855393784:AAGxBrLMZoVjzcWv6veIh2YyhQdt5UmfX6o')
 
@@ -7,10 +9,7 @@ bot = telebot.TeleBot('855393784:AAGxBrLMZoVjzcWv6veIh2YyhQdt5UmfX6o')
 @bot.message_handler(commands=['start'])
 def start(msg):
     print('start.enter;')
-    keyboard = types.InlineKeyboardMarkup()
-    test_key = types.InlineKeyboardButton(text='Test', callback_data='test')
-    clear_kay = types.InlineKeyboardButton(text='Clear', callback_data='clear')
-    keyboard.add(test_key, clear_kay)
+    keyboard = get_started_kbrd()
     bot.send_message(chat_id=msg.chat.id, text='Hello app was started', reply_markup=keyboard)
     print('start.end;')
 
@@ -30,12 +29,10 @@ def clear(message):
     print('clear.end;')
 
 
-@bot.callback_query_handler(func=lambda c: c.data == 'test')
+@bot.callback_query_handler(func=lambda c: c.data == TEST.callback_data)
 def test(msg):
     print('test.enter;')
-    keyboard = types.InlineKeyboardMarkup()
-    for title in get_all_title():
-        keyboard.add(types.InlineKeyboardButton(text=title.name, callback_data='remove_title_' + str(title.id)))
+    keyboard = get_list_kbrd_from(elements=get_all_title(), prefix='remove_title_')
     bot.send_message(chat_id=msg.message.chat.id, text='test text', reply_markup=keyboard)
     print('test.end;')
 
