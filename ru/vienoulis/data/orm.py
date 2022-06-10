@@ -74,6 +74,13 @@ def remove_title_by_id(title_id):
     print("remove_title_by_id.success;")
 
 
+def get_title_by_id(title_id):
+    print("get_title_by_id.enter; id", title_id)
+    title = Title.get_or_none(Title.id == title_id)
+    print(f"get_title_by_id.success; {title}")
+    return title
+
+
 def get_all_title():
     return Title.filter()
 # def remove_by_title(note_title):
