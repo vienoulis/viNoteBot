@@ -1,8 +1,5 @@
-from peewee import *
 from ru.vienoulis.data.dto.Note import *
 from ru.vienoulis.data.dto.Title import *
-
-db = MySQLDatabase('test', user='lyk', passwd='')
 
 
 def init_note_db():

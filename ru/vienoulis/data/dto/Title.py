@@ -1,5 +1,6 @@
 import peewee
-from ru.vienoulis.data.orm import db
+
+from ru.vienoulis.di.conf import db
 
 
 class Title(peewee.Model):
