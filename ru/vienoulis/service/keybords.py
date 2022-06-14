@@ -19,7 +19,14 @@ def get_list_kbrd_from(elements, prefix):
     return keyboard
 
 
-def get_note_keyboard(note_id):
+def get_note_list_keyboard():
+    keyboard = types.InlineKeyboardMarkup()
+    start_key = types.InlineKeyboardButton(text=HOME_BTN.text, callback_data=HOME_BTN.callback_data)
+    keyboard.add(start_key)
+    return keyboard
+
+
+def get_empty_note_list_keyboard(note_id):
     keyboard = types.InlineKeyboardMarkup()
     remove_key = types.InlineKeyboardButton(text=REMOVE_BTN.text, callback_data=f'{REMOVE_BTN.callback_data}_{note_id}')
     start_key = types.InlineKeyboardButton(text=HOME_BTN.text, callback_data=HOME_BTN.callback_data)

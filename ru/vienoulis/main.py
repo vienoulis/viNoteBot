@@ -1,8 +1,8 @@
 from data.orm import add_title_orm, get_all_title, remove_title_by_id
 from ru.vienoulis.di.conf import bot
+from ru.vienoulis.service.chat_utils import remove_msg
 from ru.vienoulis.service.chat_utils import start_cmd, clear_btn, show_title_btn, show_notes_by_title_id_btn, \
     send_add_title_btn
-from ru.vienoulis.service.chat_utils import remove_msg
 from ru.vienoulis.service.keybords import get_list_kbrd_from
 from utils.const.buttoms import *
 
@@ -44,9 +44,17 @@ def show_title_by_id_handler(msg):
 def text_handler(msg):
     print('text_handler.enter;')
     send_add_title_btn(msg)
-
     remove_msg(message=msg)
+    remove_msg(message=msg, increment=1)
     print('text_handler.end;')
+
+
+@bot.callback_query_handler(func=lambda c: c.data == HOME_BTN.callback_data)
+def home_btn_handler(msg):
+    print('home_btn_handler.enter;')
+    start_cmd(msg.message)
+    remove_msg(msg.message)
+    print('home_btn_handler.end;')
 
 
 @bot.callback_query_handler(func=lambda c: c.data == TEST.callback_data)
@@ -57,7 +65,7 @@ def test(msg):
     print('test.end;')
 
 
-@bot.callback_query_handler(func=lambda c: c.data.startswith('remove_title_'))
+@bot.callback_query_handler(func=lambda c: c.data.startswith(f'{REMOVE_BTN.callback_data}_'))
 def remove_title(msg):
     print('remove_title.enter;', msg.data)
     test(msg)
@@ -72,22 +80,9 @@ def remove_title(msg):
 def handle_add_title_key(msg):
     print('handle_add_title_key.enter;')
     add_title_orm(title_name=msg.message.text)
+    remove_msg(msg.message)
+    start_cmd(msg)
     print('handle_add_title_key.end;')
-
-
-# @bot.callback_query_handler(func=lambda message: message.data == CLEAR_BTN.callback_data)
-# def clear_kay(msg):
-#     print('clear_kay.enter;')
-#     new_message_id = message.message.message_id
-#     # bot.delete_message(chat_id=message.message.chat.id, message_id=263)
-#
-#     while new_message_id > 1:
-#         try:
-#             bot.delete_message(chat_id=message.message.chat.id, message_id=new_message_id)
-#         except Exception as error:
-#             print(f'Message_id does not exist: {new_message_id} - {error}')
-#         new_message_id = new_message_id - 1
-#     print('clear_kay.end;')
 
 
 bot.polling(none_stop=True)

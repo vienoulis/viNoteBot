@@ -2,13 +2,14 @@ from telebot import *
 
 from ru.vienoulis.data.dto.Note import Note
 from ru.vienoulis.data.orm import get_all_title
-from ru.vienoulis.service.keybords import get_started_kbrd, get_list_kbrd_from, get_note_keyboard
 from ru.vienoulis.di.conf import bot
+from ru.vienoulis.service.keybords import get_started_kbrd, get_list_kbrd_from, get_note_list_keyboard, \
+    get_empty_note_list_keyboard
 
 
-def remove_msg(message):
+def remove_msg(message, increment=0):
     try:
-        bot.delete_message(chat_id=message.chat.id, message_id=message.id)
+        bot.delete_message(chat_id=message.chat.id, message_id=message.id - increment)
     except Exception as error:
         print(f'Message_id does not exist: {error}')
 
@@ -35,8 +36,16 @@ def show_title_btn(msg):
 
 def show_notes_by_title_id_btn(msg):
     title_id = int(str(msg.data).removeprefix('title_'))
-    note = Note.get_or_none(title_id=title_id)
-    bot.send_message(chat_id=msg.message.chat.id, text=note.text, reply_markup=get_note_keyboard(note.id))
+    if Note.get_or_none(title=title_id) is None:
+        bot.send_message(chat_id=msg.message.chat.id, text='This title is empty',
+                         reply_markup=get_empty_note_list_keyboard(title_id))
+    else:
+        notes = Note.select().where(Note.title == title_id)
+        for note in notes:
+            bot.send_message(chat_id=msg.message.chat.id, text=f'{note.text}')
+
+        bot.send_message(chat_id=msg.message.chat.id, text='.',
+                         reply_markup=get_note_list_keyboard())
 
 
 def send_add_title_btn(msg):
