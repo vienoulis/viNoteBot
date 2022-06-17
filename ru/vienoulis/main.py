@@ -2,15 +2,17 @@ from data.orm import add_title_orm, get_all_title, remove_title_by_id
 from ru.vienoulis.di.conf import bot
 from ru.vienoulis.service.chat_utils import remove_msg
 from ru.vienoulis.service.chat_utils import start_cmd, clear_btn, show_title_btn, show_notes_by_title_id_btn, \
-    send_add_title_btn
+    send_add_note_title_btn
 from ru.vienoulis.service.keybords import get_list_kbrd_from
+from ru.vienoulis.service.state import State
+from ru.vienoulis.service.state_service import set_state, get_state
 from utils.const.buttoms import *
 
 
 @bot.message_handler(commands=['start'])
 def start_cmd_handler(msg):
     print('start_cmd_handler.enter;')
-    start_cmd(msg)
+    start_cmd(msg.chat)
     remove_msg(message=msg)
     print('start_cmd_handler.end;')
 
@@ -20,7 +22,7 @@ def clear_btn_handler(msg):
     print('clear_btn_handler.enter;')
     clear_btn(msg)
     remove_msg(message=msg)
-    start_cmd(msg.message)
+    start_cmd(msg.message.chat)
     print('clear_btn_handler.end;')
 
 
@@ -36,6 +38,8 @@ def show_titles_btn_handler(msg):
 def show_title_by_id_handler(msg):
     print('show_title_by_id_handler.enter;', msg.data)
     show_notes_by_title_id_btn(msg)
+    set_state(State.title)
+    state = get_state()
     remove_msg(message=msg.message)
     print('show_title_by_id_handler.end;')
 
@@ -43,7 +47,7 @@ def show_title_by_id_handler(msg):
 @bot.message_handler(content_types=['text'])
 def text_handler(msg):
     print('text_handler.enter;')
-    send_add_title_btn(msg)
+    send_add_note_title_btn(msg)
     remove_msg(message=msg)
     remove_msg(message=msg, increment=1)
     print('text_handler.end;')
@@ -52,7 +56,7 @@ def text_handler(msg):
 @bot.callback_query_handler(func=lambda c: c.data == HOME_BTN.callback_data)
 def home_btn_handler(msg):
     print('home_btn_handler.enter;')
-    start_cmd(msg.message)
+    start_cmd(msg.message.chat)
     remove_msg(msg.message)
     print('home_btn_handler.end;')
 
@@ -68,20 +72,19 @@ def test(msg):
 @bot.callback_query_handler(func=lambda c: c.data.startswith(f'{REMOVE_BTN.callback_data}_'))
 def remove_title(msg):
     print('remove_title.enter;', msg.data)
-    test(msg)
     # todo нельзя удалить если заголовок принадлежит заметке
     title_id = int(str(msg.data).removeprefix('remove_title_'))
     remove_title_by_id(title_id)
-
+    remove_msg(msg.message)
     print('remove_title.end;')
 
 
-@bot.callback_query_handler(func=lambda c: c.data == 'add_title')
+@bot.callback_query_handler(func=lambda c: c.data == ADD_TITLE_BTN.callback_data)
 def handle_add_title_key(msg):
     print('handle_add_title_key.enter;')
     add_title_orm(title_name=msg.message.text)
     remove_msg(msg.message)
-    start_cmd(msg)
+    start_cmd(msg.message.chat)
     print('handle_add_title_key.end;')
 
 
